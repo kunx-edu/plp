@@ -9,7 +9,7 @@ type myHandler struct {
 }
 
 // 路由列表
-var routers map[string]func(r http.ResponseWriter, w *http.Request)
+var routers map[string]func(w http.ResponseWriter, r *http.Request)
 
 func init() {
 	var user_controller controllers.UserController
@@ -27,13 +27,13 @@ func init() {
 	}
 }
 
-func (handler myHandler) ServeHTTP(r http.ResponseWriter, w *http.Request) {
-	path := w.URL.Path
+func (handler myHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
 
 	if hand_func, ok := routers[path]; ok {
-		hand_func(r, w)
+		hand_func(w, r)
 	} else {
-		http.NotFound(r, w)
+		http.NotFound(w, r)
 	}
 	return;
 }

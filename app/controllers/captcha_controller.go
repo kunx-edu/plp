@@ -9,11 +9,11 @@ type CaptchaController struct {
 }
 
 // 渲染验证码
-func (captcha_controller CaptchaController) Captcha(r http.ResponseWriter, w *http.Request) {
+func (captcha_controller CaptchaController) Captcha(w http.ResponseWriter, r *http.Request) {
 
 }
 
 // 校验验证码
-func (captcha_controller CaptchaController) check(r http.ResponseWriter, w *http.Request) {
+func (captcha_controller CaptchaController) check(w http.ResponseWriter, r *http.Request) {
 
 }
