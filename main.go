@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"plp/app/controllers"
+	"plp/lib"
 )
 
 type myHandler struct {
@@ -16,7 +17,7 @@ func init() {
 	var captcha_controller controllers.CaptchaController
 	routers = map[string]func(r http.ResponseWriter, w *http.Request){
 		"/": func(r http.ResponseWriter, w *http.Request) {
-			r.Write([]byte("hello plp"))
+			r.Write([]byte("hello 漂流瓶"))
 		},
 		"/plp/register":      user_controller.Register,
 		"/plp/login":         user_controller.Login,
@@ -39,5 +40,12 @@ func (handler myHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.ListenAndServe(":8080", myHandler{})
+	// 注册配置文件
+	config := new(lib.Config)
+	config.InitConfig("./app/conf/config.ini")
+	port := config.Read("base", "port")
+
+	// 开启服务
+	http.ListenAndServe(":"+port, myHandler{})
+
 }
