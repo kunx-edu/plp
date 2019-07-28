@@ -7,9 +7,6 @@ import (
 	"os"
 )
 
-// 创建一个导出变量，以便其它包中可以使用，而不用每次都读取文件
-var ConfigSetting *Config
-
 const sub_key_sep string = ":"
 
 type Config struct {
@@ -78,7 +75,6 @@ func (c *Config) InitConfig(path string) {
 
 		c.Configs[key] = value
 	}
-	ConfigSetting = c
 }
 
 // 读取配置
