@@ -7,32 +7,22 @@ import (
 	"plp/lib"
 )
 
-type DB_Connect struct {
-	Conn *sql.DB
-}
+var DB_CONN *sql.DB
 
-var DB_CONN DB_Connect
-
-func (db_conn *DB_Connect) GetDb() *sql.DB {
-	return db_conn.Conn
-}
-
-func init() {
-	config := new(lib.Config)
-	config.InitConfig("./app/conf/config.ini")
+func InitDBConn() {
 
 	dsn_tpl := "%s:%s@%s(%s:%s)/plp?charset=%s"
-	db_user := config.Read("db", "user")
-	db_password := config.Read("db", "password")
-	db_protocol := config.Read("db", "protocol")
-	db_server := config.Read("db", "server")
-	db_port := config.Read("db", "port")
-	db_charset := config.Read("db", "charset")
+	db_user := lib.Read("db", "user")
+	db_password := lib.Read("db", "password")
+	db_protocol := lib.Read("db", "protocol")
+	db_server := lib.Read("db", "server")
+	db_port := lib.Read("db", "port")
+	db_charset := lib.Read("db", "charset")
 	dsn := fmt.Sprintf(dsn_tpl, db_user, db_password, db_protocol, db_server, db_port, db_charset)
 
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		panic(err)
+		fmt.Println("数据库连接失败 "+dsn, err)
 	}
-	DB_CONN.Conn = db
+	DB_CONN = db
 }

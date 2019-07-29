@@ -73,11 +73,11 @@ func (user_controller UserController) Register(w http.ResponseWriter, r *http.Re
 	//} else {
 	// 查看用户名是否已经存在
 	select_sql := "SELECT count(1) FROM users WHERE login_name=?"
-	db := services.DB_CONN.GetDb()
+	db := services.DB_CONN
 	var count int
 	err := db.QueryRow(select_sql, login_name).Scan(&count)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	} else if count > 0 {
 		fmt.Println("用户已存在")
 	} else {
@@ -89,7 +89,7 @@ func (user_controller UserController) Register(w http.ResponseWriter, r *http.Re
 		res, err := stmt.Exec(login_name, password, gender, phone, email, register_time, register_ip) // 中文出现了乱码
 
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
 		}
 		fmt.Println(res)
 		//id, _ := res.LastInsertId()

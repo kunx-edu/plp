@@ -3,6 +3,7 @@ package lib
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 )
@@ -14,8 +15,10 @@ type Config struct {
 	sub_key string
 }
 
-func (c *Config) InitConfig(path string) {
-	c.Configs = make(map[string]string)
+var config Config
+
+func InitConfig(path string) {
+	config.Configs = make(map[string]string)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		panic("文件不存在")
 	}
@@ -24,7 +27,7 @@ func (c *Config) InitConfig(path string) {
 	// 打开文件
 	f, err := os.Open(path)
 	if err != nil {
-		panic(err)
+		fmt.Println("配置文件不存在 " + path)
 	}
 
 	defer f.Close()
@@ -52,7 +55,7 @@ func (c *Config) InitConfig(path string) {
 		sub_start_index := bytes.IndexByte(line, '[')
 		sub_end_index := bytes.IndexByte(line, ']')
 		if sub_start_index > -1 && sub_end_index > -1 && sub_end_index > sub_start_index+1 {
-			c.sub_key = string(line[sub_start_index+1 : sub_end_index])
+			config.sub_key = string(line[sub_start_index+1 : sub_end_index])
 			continue
 		}
 
@@ -69,21 +72,21 @@ func (c *Config) InitConfig(path string) {
 		key := string(line[:index])
 
 		// 可能会出现bug，比如配置项[default]下的name和default_name会出现冲突
-		if c.sub_key != "" {
-			key = c.sub_key + sub_key_sep + key
+		if config.sub_key != "" {
+			key = config.sub_key + sub_key_sep + key
 		}
 
-		c.Configs[key] = value
+		config.Configs[key] = value
 	}
 }
 
 // 读取配置
-func (c *Config) Read(sub_key string, key string) string {
-	if c == nil {
-		panic("配置文件未初始化")
+func Read(sub_key string, key string) string {
+	if config.Configs == nil {
+		fmt.Println("配置文件未初始化")
 	}
 	real_key := sub_key + sub_key_sep + key
-	if v, existes := c.Configs[real_key]; existes {
+	if v, existes := config.Configs[real_key]; existes {
 		return v
 	}
 	return ""
