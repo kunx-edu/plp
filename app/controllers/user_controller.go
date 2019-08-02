@@ -26,9 +26,14 @@ func (u UserController) Register(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	phone := r.FormValue("phone")
 	gender := r.FormValue("gender")
+	// 校验验证码
+	uuid := r.FormValue("uuid")
+	code := r.FormValue("code")
 
 	error_message := ""
-	if len(login_name) < 1 {
+	if !services.ValidCaptcha(uuid, code) {
+		error_message = "验证码不正确"
+	} else if len(login_name) < 1 {
 		error_message = "用户名不能为空"
 	} else if valid_login_name_flag, _ := regexp.MatchString(`^[a-z\d_]{5,16}$`, login_name); !valid_login_name_flag {
 		error_message = "用户名由5-16位小写字母、数字和下划线组成"
@@ -60,14 +65,6 @@ func (u UserController) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 校验验证码
-	//uuid := r.FormValue("uuid")
-	//code := r.FormValue("code")
-	//if !services.ValidCaptcha(uuid, code) {
-	//	w.WriteHeader(http.StatusForbidden)
-	//	fmt.Println("禁止访问")
-	//	//http.Error(w, "禁止访问", http.StatusForbidden)
-	//} else {
 	// 查看用户名是否已经存在
 	select_sql := "SELECT count(1) FROM users WHERE login_name=?"
 	db := services.DB_CONN
@@ -95,8 +92,9 @@ func (u UserController) Register(w http.ResponseWriter, r *http.Request) {
 	register_time := time.Now().Format("2006-01-02 15:04:05")
 	register_ip := exnet.RemoteIP(r)
 	stmt, _ := db.Prepare(insert_sql)
+	defer stmt.Close()
 
-	_, err = stmt.Exec(login_name, encrypt_password, gender, phone, email, register_time, register_ip) // 中文出现了乱码
+	_, err = stmt.Exec(login_name, encrypt_password, gender, phone, email, register_time, register_ip)
 
 	if err != nil {
 		error_message = err.Error()
